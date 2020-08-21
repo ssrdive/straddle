@@ -12,11 +12,12 @@ import (
 )
 
 type application struct {
-	errorLog   *log.Logger
-	infoLog    *log.Logger
-	secret     []byte
-	runtimeEnv string
-	api        *mysql.ApiModel
+	errorLog     *log.Logger
+	infoLog      *log.Logger
+	secret       []byte
+	runtimeEnv   string
+	clockworkAPI string
+	api          *mysql.ApiModel
 }
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 	dsn := flag.String("dsn", "user:password@tcp(host)/database_name?parseTime=true", "MySQL data source name")
 	secret := flag.String("secret", "basara", "Secret key for generating jwts")
 	runtimeEnv := flag.String("renv", "prod", "Runtime environment mode")
+	clockworkAPI := flag.String("capi", "clockwork", "Clockwork SMS API key")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -37,11 +39,12 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		errorLog:   errorLog,
-		infoLog:    infoLog,
-		secret:     []byte(*secret),
-		runtimeEnv: *runtimeEnv,
-		api:        &mysql.ApiModel{DB: db},
+		errorLog:     errorLog,
+		infoLog:      infoLog,
+		secret:       []byte(*secret),
+		runtimeEnv:   *runtimeEnv,
+		clockworkAPI: *clockworkAPI,
+		api:          &mysql.ApiModel{DB: db},
 	}
 
 	srv := &http.Server{

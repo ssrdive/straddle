@@ -17,7 +17,7 @@ type ApiModel struct {
 	DB *sql.DB
 }
 
-func (m *ApiModel) SignUp(countryCode, number string) error {
+func (m *ApiModel) SignUp(countryCode, number, clockworkAPI string) error {
 	tx, err := m.DB.Begin()
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (m *ApiModel) SignUp(countryCode, number string) error {
 	}
 
 	// resp, err := http.Get(fmt.Sprintf("http://www.textit.biz/sendmsg/?id=94768237192&pw=6200&to=%s%s&text=Your+Straddle+verification%20key+is+%s", countryCode, number, otp))
-	resp, err := http.Get(fmt.Sprintf("https://api.clockworksms.com/http/send.aspx?key=b1fbdb770d82330c3c701d5b3b62383f3d8c5bdc&to=%s%s&content=Your+Straddle+verification+key+is+%s", countryCode, number, otp))
+	resp, err := http.Get(fmt.Sprintf("https://api.clockworksms.com/http/send.aspx?key=%s&to=%s%s&content=Your+Straddle+verification+key+is+%s", clockworkAPI, countryCode, number, otp))
 	if err != nil {
 		return err
 	}

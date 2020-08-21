@@ -25,7 +25,7 @@ func (app *application) signUp(w http.ResponseWriter, r *http.Request) {
 	countryCode := r.PostForm.Get("country_code")
 	number := r.PostForm.Get("number")
 
-	err = app.api.SignUp(countryCode, number)
+	err = app.api.SignUp(countryCode, number, app.clockworkAPI)
 	if err != nil {
 		app.serverError(w, err)
 		return
