@@ -14,6 +14,8 @@ func (app *application) routes() http.Handler {
 	r := mux.NewRouter()
 	r.Handle("/", http.HandlerFunc(app.home)).Methods("GET")
 	r.Handle("/signup", http.HandlerFunc(app.signUp)).Methods("POST")
+	r.Handle("/verifyPin", http.HandlerFunc(app.verifyPin)).Methods("POST")
+	r.Handle("/verifyHash", http.HandlerFunc(app.verifyHash)).Methods("POST")
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	r.Handle("/static/", http.StripPrefix("/static", fileServer))

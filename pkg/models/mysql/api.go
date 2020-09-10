@@ -2,10 +2,12 @@ package mysql
 
 import (
 	"crypto/rand"
+	"crypto/sha1"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/ssrdive/basara/pkg/sql/queries"
 	"github.com/ssrdive/mysequel"
@@ -17,7 +19,69 @@ type ApiModel struct {
 	DB *sql.DB
 }
 
-func (m *ApiModel) SignUp(countryCode, number, clockworkAPI string) error {
+func (m *ApiModel) VerifyHash(countryCode, number, hash string) error {
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		_ = tx.Commit()
+	}()
+
+	var correct int
+	err = tx.QueryRow(queries.CHECK_IF_HASH_CORRECT, countryCode, number, hash).Scan(&correct)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ApiModel) VerifyPin(countryCode, number, pin string) (string, error) {
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		_ = tx.Commit()
+	}()
+
+	var correct int
+	err = tx.QueryRow(queries.CHECK_IF_PIN_CORRECT, countryCode, number, pin).Scan(&correct)
+	if err != nil {
+		return "", err
+	}
+
+	hashInput := fmt.Sprintf("%s%s%s", time.Now().Format("2006-01-02 15:04:05"), number, countryCode)
+	h := sha1.New()
+	h.Write([]byte(hashInput))
+	sha1Hash := hex.EncodeToString(h.Sum(nil))
+
+	_, err = mysequel.Update(mysequel.UpdateTable{
+		Table: mysequel.Table{
+			TableName: "user",
+			Columns:   []string{"hash"},
+			Vals:      []interface{}{sha1Hash},
+			Tx:        tx,
+		},
+		WColumns: []string{"country_code", "number"},
+		WVals:    []string{countryCode, number},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return sha1Hash, nil
+}
+
+func (m *ApiModel) SignUp(countryCode, number, clockworkAPI, env string) error {
 	tx, err := m.DB.Begin()
 	if err != nil {
 		return err
@@ -65,18 +129,14 @@ func (m *ApiModel) SignUp(countryCode, number, clockworkAPI string) error {
 	}
 
 	// resp, err := http.Get(fmt.Sprintf("http://www.textit.biz/sendmsg/?id=94768237192&pw=6200&to=%s%s&text=Your+Straddle+verification%20key+is+%s", countryCode, number, otp))
-	resp, err := http.Get(fmt.Sprintf("https://api.clockworksms.com/http/send.aspx?key=%s&to=%s%s&content=Your+Straddle+verification+key+is+%s", clockworkAPI, countryCode, number, otp))
-	if err != nil {
-		return err
-	}
+	if env == "prod" {
+		resp, err := http.Get(fmt.Sprintf("https://api.clockworksms.com/http/send.aspx?key=%s&to=%s%s&content=Your+Straddle+verification+key+is+%s", clockworkAPI, countryCode, number, otp))
+		if err != nil {
+			return err
+		}
 
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+		defer resp.Body.Close()
 	}
-	fmt.Println(body)
 
 	return nil
 }

@@ -23,7 +23,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "user:password@tcp(host)/database_name?parseTime=true", "MySQL data source name")
-	secret := flag.String("secret", "basara", "Secret key for generating jwts")
+	secret := flag.String("secret", "straddle", "Secret key for generating jwts")
 	runtimeEnv := flag.String("renv", "prod", "Runtime environment mode")
 	clockworkAPI := flag.String("capi", "clockwork", "Clockwork SMS API key")
 	flag.Parse()

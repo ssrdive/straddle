@@ -16,3 +16,15 @@ const CHECK_IF_NUMBER_EXISTS = `
 	FROM user U 
 	WHERE U.country_code = ? AND U.number = ?
 `
+
+const CHECK_IF_PIN_CORRECT = `
+	SELECT COUNT(id) AS valid
+	FROM user 
+	WHERE country_code = ? AND number = ? AND pin = ?
+`
+
+const CHECK_IF_HASH_CORRECT = `
+	SELECT COUNT(id) AS valid
+	FROM user 
+	WHERE country_code = ? AND number = ? AND hash = ?
+`
