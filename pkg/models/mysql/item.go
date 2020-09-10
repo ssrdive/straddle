@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"net/url"
 
-	"github.com/ssrdive/basara/pkg/models"
-	"github.com/ssrdive/basara/pkg/sql/queries"
 	"github.com/ssrdive/mysequel"
+	"github.com/ssrdive/straddle/pkg/models"
+	"github.com/ssrdive/straddle/pkg/sql/queries"
 )
 
 // ItemModel struct holds methods to query item table

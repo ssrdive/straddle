@@ -8,7 +8,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/ssrdive/basara/pkg/models/mysql"
+	"github.com/ssrdive/straddle/pkg/models/mysql"
 )
 
 type application struct {

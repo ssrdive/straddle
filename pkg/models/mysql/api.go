@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ssrdive/basara/pkg/sql/queries"
 	"github.com/ssrdive/mysequel"
+	"github.com/ssrdive/straddle/pkg/sql/queries"
 )
 
 const otpChars = "1234567890"
