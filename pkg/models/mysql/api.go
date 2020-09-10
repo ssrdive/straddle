@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -37,6 +38,10 @@ func (m *ApiModel) VerifyHash(countryCode, number, hash string) error {
 	if err != nil {
 		return err
 	}
+
+	if correct == 0 {
+		return errors.New("Invalid Hash")
+	}
 	return nil
 }
 
@@ -57,6 +62,10 @@ func (m *ApiModel) VerifyPin(countryCode, number, pin string) (string, error) {
 	err = tx.QueryRow(queries.CHECK_IF_PIN_CORRECT, countryCode, number, pin).Scan(&correct)
 	if err != nil {
 		return "", err
+	}
+
+	if correct == 0 {
+		return "", errors.New("Invalid PIN")
 	}
 
 	hashInput := fmt.Sprintf("%s%s%s", time.Now().Format("2006-01-02 15:04:05"), number, countryCode)

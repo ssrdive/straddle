@@ -47,7 +47,7 @@ func (app *application) verifyHash(w http.ResponseWriter, r *http.Request) {
 
 	err = app.api.VerifyHash(countryCode, number, hash)
 	if err != nil {
-		app.serverError(w, err)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (app *application) verifyPin(w http.ResponseWriter, r *http.Request) {
 
 	sha1, err := app.api.VerifyPin(countryCode, number, pin)
 	if err != nil {
-		app.serverError(w, err)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
