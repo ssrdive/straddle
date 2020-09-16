@@ -28,3 +28,8 @@ const CHECK_IF_HASH_CORRECT = `
 	FROM user 
 	WHERE country_code = ? AND number = ? AND hash = ?
 `
+
+const USER_DETAILS = `
+SELECT first_name, last_name, display_name, dob, status
+FROM user WHERE number = ?
+`

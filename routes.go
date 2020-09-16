@@ -15,6 +15,8 @@ func (app *application) routes() http.Handler {
 	r.Handle("/", http.HandlerFunc(app.home)).Methods("GET")
 	r.Handle("/signup", http.HandlerFunc(app.signUp)).Methods("POST")
 	r.Handle("/verifyPin", http.HandlerFunc(app.verifyPin)).Methods("POST")
+	r.Handle("/updateProfile", http.HandlerFunc(app.updateProfile)).Methods("POST")
+	r.Handle("/getDetails/{number}", http.HandlerFunc(app.getDetails)).Methods("GET")
 	r.Handle("/verifyHash", http.HandlerFunc(app.verifyHash)).Methods("POST")
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))

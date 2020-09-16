@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ssrdive/mysequel"
+	"github.com/ssrdive/straddle/pkg/models"
 	"github.com/ssrdive/straddle/pkg/sql/queries"
 )
 
@@ -42,6 +43,47 @@ func (m *ApiModel) VerifyHash(countryCode, number, hash string) error {
 	if correct == 0 {
 		return errors.New("Invalid Hash")
 	}
+	return nil
+}
+
+func (m *ApiModel) Details(number string) (models.UserDetails, error) {
+	var detail models.UserDetails
+	err := m.DB.QueryRow(queries.USER_DETAILS, number).Scan(&detail.FirstName, &detail.LastName,
+		&detail.DisplayName, &detail.DOB, &detail.Status)
+	if err != nil {
+		return models.UserDetails{}, err
+	}
+
+	return detail, nil
+}
+
+func (m *ApiModel) UpdateProfile(number, firstName, lastName, displayName, dob, status string) error {
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		_ = tx.Commit()
+	}()
+
+	_, err = mysequel.Update(mysequel.UpdateTable{
+		Table: mysequel.Table{
+			TableName: "user",
+			Columns:   []string{"first_name", "last_name", "display_name", "dob", "status"},
+			Vals:      []interface{}{firstName, lastName, displayName, dob, status},
+			Tx:        tx,
+		},
+		WColumns: []string{"country_code", "number"},
+		WVals:    []string{"94", number},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

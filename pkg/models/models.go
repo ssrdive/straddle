@@ -61,3 +61,10 @@ type ItemDetails struct {
 	ItemName         string  `json:"item_name"`
 	Price            float64 `json:"price"`
 }
+type UserDetails struct {
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	DisplayName string `json:"display_name"`
+	DOB         string `json:"dob"`
+	Status      string `json:"status"`
+}

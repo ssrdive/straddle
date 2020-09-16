@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +49,47 @@ func (app *application) verifyHash(w http.ResponseWriter, r *http.Request) {
 	hash := r.PostForm.Get("hash")
 
 	err = app.api.VerifyHash(countryCode, number, hash)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "1")
+}
+
+func (app *application) getDetails(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	number := vars["number"]
+	if number == "" {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	cds, err := app.api.Details(number)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cds)
+}
+
+func (app *application) updateProfile(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	number := r.PostForm.Get("number")
+	firstName := r.PostForm.Get("first_name")
+	lastName := r.PostForm.Get("last_name")
+	displayName := r.PostForm.Get("display_name")
+	dob := r.PostForm.Get("dob")
+	status := r.PostForm.Get("status")
+
+	err = app.api.UpdateProfile(number, firstName, lastName, displayName, dob, status)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
